@@ -1,4 +1,4 @@
-﻿// script.js
+// script.js
 
 // Initialize Telegram WebApp
 // Check if the Telegram.WebApp object is available
@@ -53,6 +53,11 @@ let productsData = loadProductsFromLocalStorage() || defaultProductsData;
 // Object to store items in the cart
 let cart = {};
 
+// Calculator state variables
+let currentCalculatorValue = '';
+let calculatorTargetProductId = null;
+let calculatorTargetField = null; // 'quantity' or 'price'
+
 // Get references to DOM elements
 const mainOrderView = document.getElementById('main-order-view');
 const productManagementView = document.getElementById('product-management-view');
@@ -75,8 +80,13 @@ const addProductManualBtn = document.getElementById('add-product-manual-btn');
 const addProductStatus = document.getElementById('add-product-status');
 const manageProductsList = document.getElementById('manage-products-list');
 
-const placeOrderBtn = document.getElementById('place-order-button'); // New button
-const receiptOutput = document.getElementById('receipt-output');     // New receipt output div
+const placeOrderBtn = document.getElementById('place-order-button');
+const receiptOutput = document.getElementById('receipt-output');
+
+// Calculator elements
+const calculatorKeyboard = document.getElementById('calculator-keyboard');
+const calculatorDisplay = document.getElementById('calculator-display');
+const calcButtons = document.querySelectorAll('.calc-button');
 
 
 // Helper function to switch between views
@@ -100,8 +110,9 @@ function showView(viewId) {
             window.Telegram.WebApp.MainButton.hide(); // Hide MainButton in management view
         }
     }
-    // Always hide receipt when switching views
+    // Always hide receipt and calculator when switching views
     receiptOutput.classList.add('hidden');
+    calculatorKeyboard.classList.add('hidden');
 }
 
 
@@ -180,10 +191,14 @@ function updateCartDisplay() {
                 <div class="item-details">
                     <span>${item.name}</span>
                     <div class="item-inputs">
-                        <label for="quantity-${productId}">Кол-во:</label>
-                        <input type="number" id="quantity-${productId}" class="item-quantity-input" min="1" data-id="${productId}">
-                        <label for="price-${productId}">Цена:</label>
-                        <input type="number" id="price-${productId}" class="item-price-input" min="0" data-id="${productId}">
+                        <label>Кол-во:</label>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn decrement-btn" data-id="${productId}">-</button>
+                            <span class="item-quantity-display" data-id="${productId}">${item.quantity}</span>
+                            <button class="quantity-btn increment-btn" data-id="${productId}">+</button>
+                        </div>
+                        <label>Цена:</label>
+                        <span class="item-price-display" data-id="${productId}">${itemPrice}</span>
                     </div>
                 </div>
                 <div class="item-actions">
@@ -191,10 +206,6 @@ function updateCartDisplay() {
                 </div>
             `;
             cartItemsContainer.appendChild(li);
-
-            // Manually set the value after appending to DOM to avoid re-rendering issues during input
-            li.querySelector(`#quantity-${productId}`).value = item.quantity;
-            li.querySelector(`#price-${productId}`).value = itemPrice;
         }
     }
 
@@ -253,6 +264,43 @@ cartItemsContainer.addEventListener('click', (event) => {
         return; // If no ID or item not in cart, exit
     }
 
+    // Handle quantity increment/decrement buttons
+    if (target.classList.contains('increment-btn')) {
+        cart[productId].quantity++;
+        updateCartDisplay();
+        receiptOutput.classList.add('hidden');
+        return;
+    }
+    if (target.classList.contains('decrement-btn')) {
+        cart[productId].quantity--;
+        if (cart[productId].quantity < 1) {
+            delete cart[productId]; // Remove if quantity drops to 0
+        }
+        updateCartDisplay();
+        receiptOutput.classList.add('hidden');
+        return;
+    }
+
+    // Handle clicks on quantity/price display spans to open calculator
+    if (target.classList.contains('item-quantity-display')) {
+        calculatorTargetProductId = productId;
+        calculatorTargetField = 'quantity';
+        currentCalculatorValue = String(cart[productId].quantity);
+        calculatorDisplay.value = currentCalculatorValue;
+        calculatorKeyboard.classList.remove('hidden');
+        calculatorDisplay.focus();
+        return;
+    }
+    if (target.classList.contains('item-price-display')) {
+        calculatorTargetProductId = productId;
+        calculatorTargetField = 'price';
+        currentCalculatorValue = String(cart[productId].price);
+        calculatorDisplay.value = currentCalculatorValue;
+        calculatorKeyboard.classList.remove('hidden');
+        calculatorDisplay.focus();
+        return;
+    }
+
     if (target.classList.contains('remove-item')) {
         delete cart[productId]; // Completely remove item
     }
@@ -260,90 +308,69 @@ cartItemsContainer.addEventListener('click', (event) => {
     receiptOutput.classList.add('hidden'); // Hide receipt when removing item
 });
 
-// New event listener for input changes in quantity and price fields in the cart
-cartItemsContainer.addEventListener('input', (event) => {
-    const target = event.target;
-    const productId = target.dataset.id;
+// Calculator button click handler
+calcButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const value = button.dataset.value;
 
-    if (!productId || !cart[productId]) {
-        return;
-    }
+        if (value === 'C') { // Clear
+            currentCalculatorValue = '';
+        } else if (value === 'Del') { // Delete last character
+            currentCalculatorValue = currentCalculatorValue.slice(0, -1);
+        } else if (value === 'OK') { // Confirm and apply
+            const parsedValue = parseFloat(currentCalculatorValue);
 
-    let inputValue = target.value; // Get the raw string value from the input
-    let parsedValue = parseInt(inputValue); // Try to parse it
-
-    // Only update cart data if parsedValue is a valid number and meets min requirements
-    // This allows typing freely, validation will happen on blur
-    if (target.classList.contains('item-quantity-input')) {
-        // Temporarily allow any number during typing, final validation on blur
-        if (!isNaN(parsedValue)) {
-            cart[productId].quantity = parsedValue;
-        }
-    } else if (target.classList.contains('item-price-input')) {
-        // Temporarily allow any number during typing, final validation on blur
-        if (!isNaN(parsedValue)) {
-            cart[productId].price = parsedValue;
-        }
-    }
-
-    // Always recalculate total and update display for live feedback
-    let currentTotal = 0;
-    for (const prodId in cart) {
-        const item = cart[prodId];
-        currentTotal += Math.round(item.price) * item.quantity;
-    }
-    totalPriceSpan.textContent = `${Math.round(currentTotal)} сум`;
-
-    if (window.Telegram && window.Telegram.WebApp && mainOrderView.classList.contains('active')) {
-        if (currentTotal > 0) {
-            window.Telegram.WebApp.MainButton.setText(`Оформить заказ на ${Math.round(currentTotal)} сум`);
-            window.Telegram.WebApp.MainButton.show();
-        } else {
-            window.Telegram.WebApp.MainButton.hide();
-        }
-    }
-    receiptOutput.classList.add('hidden'); // Hide receipt if any input changes
-});
-
-// Add a 'blur' event listener for final validation and update when focus leaves the input
-cartItemsContainer.addEventListener('blur', (event) => {
-    const target = event.target;
-    const productId = target.dataset.id;
-
-    if (!productId || !cart[productId]) {
-        // If item was deleted while blur was pending, or invalid product ID
-        updateCartDisplay(); // Ensure cart is up-to-date
-        receiptOutput.classList.add('hidden'); // Hide receipt after blur and update
-        return;
-    }
-
-    let value = parseInt(target.value);
-
-    // Perform strict validation on blur
-    if (target.classList.contains('item-quantity-input')) {
-        if (isNaN(value) || value < 1) {
-            // If invalid or less than 1 (e.g., 0 or empty), revert to previous valid quantity
-            if (value === 0) { // If explicitly typed 0, delete item
-                delete cart[productId];
-            } else {
-                target.value = cart[productId].quantity; // Revert visual input
+            if (calculatorTargetProductId && cart[calculatorTargetProductId]) {
+                if (calculatorTargetField === 'quantity') {
+                    if (isNaN(parsedValue) || parsedValue < 1) {
+                        if (parsedValue === 0) { // If explicitly typed 0, delete item
+                            delete cart[calculatorTargetProductId];
+                        } else {
+                            // Invalid input, revert to previous valid quantity
+                            // No action needed here, updateCartDisplay will refresh from cart
+                        }
+                    } else {
+                        cart[calculatorTargetProductId].quantity = parsedValue;
+                    }
+                } else if (calculatorTargetField === 'price') {
+                    if (isNaN(parsedValue) || parsedValue < 0) {
+                        // Invalid input, revert to previous valid price
+                        // No action needed here
+                    } else {
+                        cart[calculatorTargetProductId].price = parsedValue;
+                    }
+                }
+            }
+            // Reset calculator state and hide
+            currentCalculatorValue = '';
+            calculatorTargetProductId = null;
+            calculatorTargetField = null;
+            calculatorKeyboard.classList.add('hidden');
+            updateCartDisplay(); // Re-render cart to reflect changes
+            receiptOutput.classList.add('hidden'); // Hide receipt after editing
+            return; // Exit function after OK
+        } else if (value === '+500') {
+            if (calculatorTargetField === 'price') {
+                currentCalculatorValue = String(parseFloat(currentCalculatorValue || '0') + 500);
+            }
+        } else if (value === '-500') {
+            if (calculatorTargetField === 'price') {
+                let tempValue = parseFloat(currentCalculatorValue || '0') - 500;
+                currentCalculatorValue = String(Math.max(0, tempValue)); // Ensure price doesn't go below 0
             }
         } else {
-            cart[productId].quantity = value;
+            // Append number or dot
+            if (value === '.') {
+                // Only allow one dot
+                if (!currentCalculatorValue.includes('.')) {
+                    currentCalculatorValue += value;
+                }
+            } else {
+                currentCalculatorValue += value;
+            }
         }
-    } else if (target.classList.contains('item-price-input')) {
-        if (isNaN(value) || value < 0) {
-            // If invalid or negative, revert to previous valid price
-            target.value = Math.round(cart[productId].price); // Revert visual input
-        } else {
-            cart[productId].price = value;
-        }
-    }
-
-    // After blur, ensure the display is fully consistent with the model,
-    // especially if an item was removed or a value was reverted.
-    updateCartDisplay();
-    receiptOutput.classList.add('hidden'); // Hide receipt after blur and update
+        calculatorDisplay.value = currentCalculatorValue;
+    });
 });
 
 
@@ -397,7 +424,6 @@ function sendOrderToTelegram() {
             z-index: 1000;
             text-align: center;
             max-width: 90%;
-            white-space: pre-wrap; /* Preserve line breaks */
             font-family: Arial, sans-serif;
             color: #333;
         `;
@@ -455,7 +481,7 @@ loadExcelBtn.addEventListener('click', () => {
 
             // Map JSON data to our productsData format
             const newProducts = jsonProducts.map((row, index) => {
-                // Assuming columns are 'Название' and 'Цена'
+                // Assuming columns are 'Название' и 'Цена'
                 // You might need to adjust these keys based on your Excel file's header names
                 const name = row['Название'] || row['name'] || `Товар ${index + 1}`;
                 let price = parseFloat(row['Цена']) || parseFloat(row['price']) || 0;
@@ -618,6 +644,7 @@ placeOrderBtn.addEventListener('click', () => {
     cart = {};
     updateCartDisplay(); // Update cart display to show it's empty, but do NOT hide receipt here
 });
+
 
 // Function to copy receipt text to clipboard
 function copyReceiptToClipboard() {
