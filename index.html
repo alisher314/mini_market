@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -74,6 +74,32 @@
             </div>
 
             <button id="back-to-order-btn" class="telegram-button">Назад к заказу</button>
+        </div>
+    </div>
+
+    <!-- Клавиатура-калькулятор для изменения количества/цены -->
+    <div id="calculator-keyboard" class="calculator-keyboard hidden">
+        <input type="text" id="calculator-display" class="calculator-display" readonly>
+        <div class="calculator-buttons">
+            <button class="calc-button" data-value="7">7</button>
+            <button class="calc-button" data-value="8">8</button>
+            <button class="calc-button" data-value="9">9</button>
+            <button class="calc-button delete-button" data-value="Del">Del</button>
+
+            <button class="calc-button" data-value="4">4</button>
+            <button class="calc-button" data-value="5">5</button>
+            <button class="calc-button" data-value="6">6</button>
+            <button class="calc-button clear-button" data-value="C">C</button>
+
+            <button class="calc-button" data-value="1">1</button>
+            <button class="calc-button" data-value="2">2</button>
+            <button class="calc-button" data-value="3">3</button>
+            <button class="calc-button ok-button" data-value="OK">OK</button>
+
+            <button class="calc-button zero-button" data-value="0">0</button>
+            <button class="calc-button dot-button" data-value=".">.</button>
+            <button class="calc-button price-adjust-button" data-value="+500">+500</button>
+            <button class="calc-button price-adjust-button" data-value="-500">-500</button>
         </div>
     </div>
 
