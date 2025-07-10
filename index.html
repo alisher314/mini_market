@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мини-приложение для заказа</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Основной вид заказа -->
+        <div id="main-order-view" class="view active">
+            <h1>Ваш Заказ</h1>
+
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Поиск товаров...">
+            </div>
+
+            <!-- Кнопка для перехода в раздел управления продуктами -->
+            <button id="manage-products-btn" class="secondary-button">Управление продуктами</button>
+
+            <div class="products">
+                <h2>Товары</h2>
+                <div id="products-list">
+                    <!-- Товары будут динамически загружаться сюда из JavaScript -->
+                </div>
+            </div>
+
+            <div class="cart">
+                <h2>Корзина</h2>
+                <ul id="cart-items">
+                    <!-- Сюда будут добавляться товары из корзины -->
+                    <li class="cart-placeholder">Ваша корзина пуста</li>
+                </ul>
+                <div class="cart-total">
+                    <strong>Итого: <span id="total-price">0 сум</span></strong>
+                </div>
+            </div>
+
+            <!-- Новая кнопка "Оформить заказ" -->
+            <button id="place-order-button" class="telegram-button">Оформить заказ</button>
+
+            <!-- Место для вывода чека -->
+            <div id="receipt-output" class="receipt-output hidden"></div>
+
+            <!-- Кнопка для отправки заказа в Telegram (использует Telegram WebApp MainButton) -->
+            <button id="send-order-btn" class="telegram-button" style="display: none;">Отправить заказ в Telegram</button>
+        </div>
+
+        <!-- Вид управления продуктами -->
+        <div id="product-management-view" class="view hidden">
+            <h1>Управление Продуктами</h1>
+
+            <div class="file-upload-section">
+                <h2>Загрузить товары из Excel</h2>
+                <input type="file" id="excel-file-input" accept=".xlsx, .xls">
+                <button id="load-excel-btn">Загрузить</button>
+                <p id="upload-status"></p>
+            </div>
+
+            <div class="add-product-section">
+                <h2>Добавить новый продукт</h2>
+                <input type="text" id="new-product-name" placeholder="Название продукта">
+                <input type="number" id="new-product-price" placeholder="Цена (сум)" min="0">
+                <button id="add-product-manual-btn">Добавить продукт</button>
+                <p id="add-product-status"></p>
+            </div>
+
+            <div class="current-products-list">
+                <h2>Текущие продукты</h2>
+                <div id="manage-products-list">
+                    <!-- Список продуктов для управления -->
+                </div>
+            </div>
+
+            <button id="back-to-order-btn" class="telegram-button">Назад к заказу</button>
+        </div>
+    </div>
+
+    <!-- Подключение SheetJS для чтения Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="script.js"></script>
+    <!-- Подключение Telegram WebApp API -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</body>
+</html>

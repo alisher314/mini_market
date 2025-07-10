@@ -1,0 +1,418 @@
+﻿body {
+    font-family: 'Inter', Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f2f5;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 100%;
+    max-width: 600px;
+    box-sizing: border-box;
+}
+
+h1, h2 {
+    color: #1a1a1a;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* View management */
+.view {
+    display: none; /* По умолчанию все виды скрыты */
+}
+
+.view.active {
+    display: block; /* Активный вид отображается */
+}
+
+.search-bar {
+    margin-bottom: 20px;
+}
+
+#search-input {
+    width: calc(100% - 20px);
+    padding: 12px 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+.file-upload-section, .add-product-section, .current-products-list {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fdfdfd;
+    text-align: center;
+}
+
+.file-upload-section h2, .add-product-section h2, .current-products-list h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+#excel-file-input {
+    display: block;
+    margin: 0 auto 15px auto;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+#load-excel-btn, #add-product-manual-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1em;
+    margin-top: 10px; /* Отступ для кнопок */
+}
+
+#load-excel-btn:hover, #add-product-manual-btn:hover {
+    background-color: #0056b3;
+}
+
+#upload-status, #add-product-status {
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.add-product-section input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.products, .cart {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fdfdfd;
+}
+
+.product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.product-item:last-child {
+    border-bottom: none;
+}
+
+.product-item span:first-child {
+    font-weight: bold;
+    flex-grow: 1;
+}
+
+.product-item span:nth-child(2) {
+    color: #007bff;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.add-to-cart {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.add-to-cart:hover {
+    background-color: #218838;
+}
+
+#cart-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.cart-item {
+    display: flex;
+    flex-wrap: wrap; /* Позволяет элементам переноситься на новую строку */
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed #e9ecef;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-item .item-details {
+    flex-basis: 100%; /* Занимает всю ширину на маленьких экранах */
+    display: flex;
+    flex-direction: column; /* Элементы внутри будут в столбик */
+    align-items: flex-start;
+    margin-bottom: 10px; /* Отступ между деталями и действиями */
+}
+
+.cart-item .item-details span:first-child {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.cart-item .item-inputs {
+    display: flex;
+    align-items: center;
+    width: 100%; /* Занимает всю ширину для инпутов */
+    margin-top: 5px;
+}
+
+.cart-item .item-inputs label {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-right: 5px;
+    white-space: nowrap; /* Предотвращает перенос текста "Кол-во" */
+}
+
+.cart-item .item-quantity-input,
+.cart-item .item-price-input {
+    width: 60px; /* Фиксированная ширина для инпутов */
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 0.9em;
+    text-align: center;
+    margin-right: 10px; /* Отступ между инпутами */
+    -moz-appearance: textfield; /* Убирает стрелки в Firefox */
+}
+
+/* Убираем стрелки для number input в Chrome/Safari/Opera */
+.cart-item .item-quantity-input::-webkit-outer-spin-button,
+.cart-item .item-quantity-input::-webkit-inner-spin-button,
+.cart-item .item-price-input::-webkit-outer-spin-button,
+.cart-item .item-price-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+
+.cart-item .item-actions {
+    width: 100%; /* Занимает всю ширину для кнопки удаления */
+    display: flex;
+    justify-content: flex-end; /* Выравнивание кнопки удаления вправо */
+}
+
+.remove-item {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 0; /* Убираем лишний отступ */
+}
+
+.remove-item:hover {
+    background-color: #c82333;
+}
+
+.cart-placeholder {
+    text-align: center;
+    color: #6c757d;
+    padding: 20px;
+}
+
+.cart-total {
+    text-align: right;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 2px solid #e0e0e0;
+    font-size: 1.2em;
+    color: #1a1a1a;
+}
+
+.telegram-button {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background-color: #0088cc;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 30px;
+}
+
+.telegram-button:hover {
+    background-color: #006699;
+    transform: translateY(-2px);
+}
+
+.telegram-button:active {
+    transform: translateY(0);
+}
+
+.secondary-button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 20px;
+}
+
+.secondary-button:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+}
+
+.secondary-button:active {
+    transform: translateY(0);
+}
+
+/* Styles for product list in management view */
+.manage-product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed #e9ecef;
+}
+
+.manage-product-item:last-child {
+    border-bottom: none;
+}
+
+.manage-product-item span {
+    flex-grow: 1;
+}
+
+.manage-product-item .delete-product-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.manage-product-item .delete-product-btn:hover {
+    background-color: #c82333;
+}
+
+.receipt-output {
+    background-color: #f8f9fa; /* Светлый фон для чека */
+    border: 1px dashed #ced4da; /* Пунктирная рамка */
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    font-family: 'Courier New', Courier, monospace; /* Моноширинный шрифт для имитации чека */
+    white-space: pre-wrap; /* Сохраняет переносы строк и пробелы */
+    font-size: 0.9em;
+    line-height: 1.5;
+    color: #343a40;
+}
+
+.receipt-output.hidden {
+    display: none;
+}
+
+
+/* Адаптивный дизайн для мобильных устройств */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+    }
+
+    h2 {
+        font-size: 1.4em;
+    }
+
+    .product-item, .cart-item, .manage-product-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 0;
+    }
+
+    .product-item span:nth-child(2) {
+        margin: 5px 0;
+    }
+
+    .add-to-cart {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .cart-item .item-actions {
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .cart-item .item-inputs {
+        flex-direction: column; /* Инпуты в столбик на мобильных */
+        align-items: flex-start;
+    }
+
+    .cart-item .item-inputs label {
+        margin-bottom: 5px;
+    }
+
+    .cart-item .item-quantity-input,
+    .cart-item .item-price-input {
+        width: calc(100% - 10px); /* Ширина инпутов на мобильных */
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+
+    .quantity-btn, .remove-item, .manage-product-item .delete-product-btn {
+        padding: 8px 12px;
+    }
+
+    .add-product-section input {
+        width: 100%;
+    }
+
+    #load-excel-btn, #add-product-manual-btn {
+        width: 100%;
+    }
+}
