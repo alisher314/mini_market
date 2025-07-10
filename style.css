@@ -1,4 +1,4 @@
-﻿body {
+body {
     font-family: 'Inter', Arial, sans-serif;
     margin: 0;
     padding: 20px;
@@ -6,7 +6,7 @@
     color: #333;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center; /* Изменено с flex-start на center для вертикального центрирования */
     min-height: 100vh;
     box-sizing: border-box;
 }
@@ -186,6 +186,7 @@ h1, h2 {
     align-items: center;
     width: 100%; /* Занимает всю ширину для инпутов */
     margin-top: 5px;
+    flex-wrap: wrap; /* Allow wrapping for labels and inputs */
 }
 
 .cart-item .item-inputs label {
@@ -193,29 +194,46 @@ h1, h2 {
     color: #6c757d;
     margin-right: 5px;
     white-space: nowrap; /* Предотвращает перенос текста "Кол-во" */
+    margin-bottom: 5px; /* Spacing for wrapped labels */
 }
 
-.cart-item .item-quantity-input,
-.cart-item .item-price-input {
-    width: 60px; /* Фиксированная ширина для инпутов */
-    padding: 5px;
+/* Styles for quantity controls (buttons + display) */
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+    margin-bottom: 5px; /* Spacing for wrapped controls */
+}
+
+.quantity-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1em;
+    min-width: 30px; /* Ensure buttons are not too small */
+    text-align: center;
+}
+
+.quantity-btn:hover {
+    background-color: #0056b3;
+}
+
+.item-quantity-display, .item-price-display {
+    padding: 5px 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 0.9em;
     text-align: center;
-    margin-right: 10px; /* Отступ между инпутами */
-    -moz-appearance: textfield; /* Убирает стрелки в Firefox */
+    margin: 0 5px;
+    min-width: 40px; /* Ensure display has enough space */
+    background-color: #f8f9fa;
+    color: #333;
+    cursor: pointer; /* Indicate it's clickable */
 }
-
-/* Убираем стрелки для number input в Chrome/Safari/Opera */
-.cart-item .item-quantity-input::-webkit-outer-spin-button,
-.cart-item .item-quantity-input::-webkit-inner-spin-button,
-.cart-item .item-price-input::-webkit-outer-spin-button,
-.cart-item .item-price-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
 
 .cart-item .item-actions {
     width: 100%; /* Занимает всю ширину для кнопки удаления */
@@ -347,6 +365,103 @@ h1, h2 {
     display: none;
 }
 
+/* Calculator Keyboard Styles */
+.calculator-keyboard {
+    position: fixed; /* Fixed position to stay at the bottom */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 999; /* Below modal, above main content */
+}
+
+.calculator-keyboard.hidden {
+    display: none;
+}
+
+.calculator-display {
+    width: calc(100% - 30px);
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1.8em;
+    text-align: right;
+    background-color: #ffffff;
+    color: #333;
+    box-sizing: border-box;
+}
+
+.calculator-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 400px; /* Limit width for better button size */
+}
+
+.calc-button {
+    background-color: #e9ecef;
+    color: #333;
+    border: none;
+    padding: 20px 0;
+    border-radius: 8px;
+    font-size: 1.4em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.calc-button:hover {
+    background-color: #dee2e6;
+}
+
+.calc-button.clear-button {
+    background-color: #ffc107;
+    color: #333;
+}
+.calc-button.clear-button:hover {
+    background-color: #e0a800;
+}
+
+.calc-button.delete-button {
+    background-color: #dc3545;
+    color: white;
+}
+.calc-button.delete-button:hover {
+    background-color: #c82333;
+}
+
+.calc-button.ok-button {
+    background-color: #28a745;
+    color: white;
+    /* grid-column: span 2; Removed span for OK button */
+}
+.calc-button.ok-button:hover {
+    background-color: #218838;
+}
+
+.calc-button.zero-button {
+    grid-column: span 2; /* Make 0 button span two columns */
+}
+
+.calc-button.price-adjust-button {
+    background-color: #6f42c1; /* A purple color */
+    color: white;
+}
+.calc-button.price-adjust-button:hover {
+    background-color: #5a359d;
+}
+
 
 /* Адаптивный дизайн для мобильных устройств */
 @media (max-width: 768px) {
@@ -396,13 +511,12 @@ h1, h2 {
         margin-bottom: 5px;
     }
 
-    .cart-item .item-quantity-input,
-    .cart-item .item-price-input {
-        width: calc(100% - 10px); /* Ширина инпутов на мобильных */
-        margin-right: 0;
-        margin-bottom: 10px;
+    .quantity-controls {
+        width: 100%; /* Make quantity controls full width on mobile */
+        justify-content: center; /* Center buttons */
+        margin-right: 0; /* Remove right margin */
+        margin-bottom: 10px; /* Add bottom margin for spacing */
     }
-
 
     .quantity-btn, .remove-item, .manage-product-item .delete-product-btn {
         padding: 8px 12px;
@@ -414,5 +528,19 @@ h1, h2 {
 
     #load-excel-btn, #add-product-manual-btn {
         width: 100%;
+    }
+
+    .calculator-keyboard {
+        padding: 10px;
+    }
+
+    .calculator-display {
+        font-size: 1.5em;
+        padding: 10px;
+    }
+
+    .calc-button {
+        padding: 15px 0;
+        font-size: 1.2em;
     }
 }
